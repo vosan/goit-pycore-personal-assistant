@@ -20,7 +20,8 @@ Responsibilities:
 from assistant.commands_enum import Command
 from assistant.core import input_error
 from assistant.contacts.record import Record
- 
+
+
 @input_error
 def add_contact(args, book):
     """Add a new contact or phone number."""
@@ -106,6 +107,7 @@ def birthdays(args, book):
         return "No birthdays within the next week."
     return "\n".join(f"{name}: {date}" for name, date in result.items())
 
+
 @input_error
 def add_email(args, book):
     """Add an email to a contact."""
@@ -134,7 +136,6 @@ def add_address(args, book):
     return f"Address for {name} has been added."
 
 
-
 def register_contact_commands(commands):
     """Register commands in the main command dispatcher."""
     commands[Command.Contacts.ADD] = add_contact
@@ -144,5 +145,5 @@ def register_contact_commands(commands):
     commands[Command.Contacts.ADD_BIRTHDAY] = add_birthday
     commands[Command.Contacts.SHOW_BIRTHDAY] = show_birthday
     commands[Command.Contacts.BIRTHDAYS] = birthdays
-    commands[Command.Contacts.ADD_EMAIL]= add_email
-    commands[Command.Contacts.ADD_ADDRESS]= add_address
+    commands[Command.Contacts.ADD_EMAIL] = add_email
+    commands[Command.Contacts.ADD_ADDRESS] = add_address
