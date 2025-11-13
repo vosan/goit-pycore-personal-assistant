@@ -7,6 +7,5 @@ class Typeahead(Completer):
     def get_completions(self, document, complete_event):
         word = document.get_word_before_cursor().lower()
         for hint in self.hints:
-            if hint.startswith(word):
+            if str(hint.lower()).startswith(word):
                 yield Completion(hint, start_position = -len(word))
-                
