@@ -8,7 +8,6 @@ Responsibilities:
 """
 
 from datetime import datetime
-from collections import UserDict
 
 class AddressBook:
 
