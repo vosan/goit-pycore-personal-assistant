@@ -11,6 +11,8 @@ import atexit
 import signal
 from pathlib import Path
 from assistant.contacts.address_book import AddressBook
+from prompt_toolkit import PromptSession
+from assistant.typeahead import Typeahead
 from assistant.core import parse_input
 from assistant.contacts.commands import register_contact_commands
 from assistant.notes.commands import register_note_commands
@@ -76,6 +78,8 @@ def main():
 
     contacts = AddressBook()
     notes = Notebook()
+    session = PromptSession()
+    completer = Typeahead(hints=COMMANDS.keys())
 
     # Attach runtime data containers
     setattr(contacts, "data", contacts_data)
@@ -102,7 +106,7 @@ def main():
 
     try:
         while True:
-            user_input = input("Enter a command: ")
+            user_input = session.prompt('Enter a command: ', completer=completer)
             command, *args = parse_input(user_input)
 
             if command == Command.General.CLOSE:
