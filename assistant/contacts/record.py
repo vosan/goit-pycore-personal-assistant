@@ -7,13 +7,15 @@ Responsibilities:
 - Handle adding and storing a birthday (using the Birthday field).
 """
 from .fields import Name, Phone, Birthday, Email, Address
-from datetime import datetime, timedelta
+from datetime import datetime
 
 class Record:
     def __init__(self, name: str):
         self.name = Name(name)
         self.phones = []
         self.birthday = None
+        self.email = None
+        self.address = None
 
     def add_phone(self, phone: str):
         self.phones.append(Phone(phone))
@@ -45,9 +47,19 @@ class Record:
         if not self.birthday:
             return None
         today = datetime.today().date()
-        next_birthday = self.birthday.value.replace(year=today.year)
+        birthday_date = self.birthday.value
+        try:
+            next_birthday = birthday_date.replace(year=today.year)
+        except ValueError:
+            next_birthday = datetime(today.year,2,28).date()
         if next_birthday < today:
-            next_birthday = next_birthday.replace(year=today.year + 1)
+            next_year = today.year + 1
+        try:
+            next_birthday = birthday_date.replace(year=next_year)
+        except ValueError:
+            # Again: Feb 29 fallback for non-leap years
+            next_birthday = datetime(next_year, 2, 28).date()
+
         return (next_birthday - today).days
     
     def add_email(self, email: str):

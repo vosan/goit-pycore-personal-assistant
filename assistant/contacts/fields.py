@@ -11,3 +11,22 @@ Responsibilities:
 - Handle data validation and formatting for each field.
 - Raise ValueError on invalid input.
 """
+class Name:
+    def __init__(self, value):
+        self.value = value
+
+class Phone:
+    def __init__(self, value):
+        self.value = value
+
+class Birthday:
+    def __init__(self, value):
+        self.value = value
+
+class Email:
+    def __init__(self, value):
+        self.value = value
+
+class Address:
+    def __init__(self, value):
+        self.value = value
