@@ -28,6 +28,8 @@ class Command:
         ADD_BIRTHDAY = "add-birthday"
         SHOW_BIRTHDAY = "show-birthday"
         BIRTHDAYS = "birthdays"
+        # додав команду пошуку контактів - нова функціональність
+        SEARCH = "search-contacts"
     
     class Notes(str, Enum):
         """Note management commands."""
@@ -86,6 +88,11 @@ COMMAND_HELP = {
     Command.Contacts.BIRTHDAYS: CommandHelp(
         params="[days]",
         description="Show upcoming birthdays (default: 7 days)"
+    ),
+    # додано допомогу для команди пошуку контактів
+    Command.Contacts.SEARCH: CommandHelp(
+        params="<query>",
+        description="Search contacts by name, phone or email"
     ),
     
     # Note commands
