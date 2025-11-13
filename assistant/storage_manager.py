@@ -37,7 +37,7 @@ def load_data(file_path: str | Path, default: Any) -> Any:
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
     except json.JSONDecodeError:
-        # Keep it simple: return default without altering the file
+        # Return default without altering the file
         return default
 
 

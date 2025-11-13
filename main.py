@@ -82,7 +82,7 @@ def main():
     setattr(notes, "data", notes_data)
 
     def persist():
-        # Persist in-memory data to files
+        # Persist in-memory/runtime data to files
         save_data(contacts_path, getattr(contacts, "data", []))
         save_data(notes_path, getattr(notes, "data", []))
 
@@ -111,7 +111,6 @@ def main():
                 break
 
             elif command == "test-set":
-                # Populate with sample data and persist immediately
                 sample_contacts = [
                     {"name": "Alice", "phones": ["0123456789"], "birthday": "12.11.1990"},
                     {"name": "Bob", "phones": ["0987654321"], "birthday": None},
