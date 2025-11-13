@@ -9,3 +9,4 @@ class Typeahead(Completer):
         for hint in self.hints:
             if hint.startswith(word):
                 yield Completion(hint, start_position = -len(word))
+                
