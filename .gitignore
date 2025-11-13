@@ -1,0 +1,13 @@
+# Data directory - generated JSON files
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+
+# OS
+.DS_Store

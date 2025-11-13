@@ -28,6 +28,8 @@ class Command:
         ADD_BIRTHDAY = "add-birthday"
         SHOW_BIRTHDAY = "show-birthday"
         BIRTHDAYS = "birthdays"
+        ADD_EMAIL = "add-email"
+        ADD_ADDRESS = "add-address"
     
     class Notes(str, Enum):
         """Note management commands."""
@@ -86,6 +88,14 @@ COMMAND_HELP = {
     Command.Contacts.BIRTHDAYS: CommandHelp(
         params="[days]",
         description="Show upcoming birthdays (default: 7 days)"
+    ),
+    Command.Contacts.ADD_EMAIL: CommandHelp(
+        params="<name> <email>",
+        description="Add or update a contact's email"
+    ),
+    Command.Contacts.ADD_ADDRESS: CommandHelp(
+        params="<name> <address>",
+        description="Add or update a contact's address"
     ),
     
     # Note commands
