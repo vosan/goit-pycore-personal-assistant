@@ -27,8 +27,8 @@ from assistant.contacts.utils import format_contact
 @input_error
 def add_contact(args, book):
     """Add a new contact or phone number."""
-    if len(args) < 2:
-        return "Usage: add [name] [phone number]"
+    if len(args) < 2 or len(args[1])!= 10 or not args[1].isdigit():
+        return "Usage: add [name] [phone number] with 10 digits"
     name, phone = args[0], args[1]
     record = book.find(name)
     if not record:

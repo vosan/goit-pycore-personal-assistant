@@ -71,6 +71,7 @@ def show_help():
 
 
 def main():
+    show_help()
     print("\033[1;36mWelcome to the Personal Assistant!\033[0m")  # bold cyan
 
     def clear_screen():
