@@ -10,6 +10,7 @@ Responsibilities:
 import atexit
 import signal
 from pathlib import Path
+import sys
 from assistant.contacts.address_book import AddressBook
 from prompt_toolkit import PromptSession
 from assistant.typeahead import Typeahead
@@ -79,8 +80,11 @@ def main():
 
     contacts = AddressBook()
     notes = Notebook()
-    session = PromptSession()
-    completer = Typeahead(hints=COMMANDS.keys())
+    # Use prompt_toolkit only for interactive terminals to avoid warnings like
+    # "Warning: Input is not a terminal (fd=0)."
+    is_tty = sys.stdin.isatty() and sys.stdout.isatty()
+    session = PromptSession() if is_tty else None
+    completer = Typeahead(hints=(cmd.value for cmd in COMMANDS.keys())) if is_tty else None
 
     # Attach runtime data containers
     setattr(contacts, "data", contacts_data)
@@ -105,12 +109,26 @@ def main():
     register_contact_commands(COMMANDS)
     register_note_commands(COMMANDS)
 
+    # Map raw command strings to their Enum counterparts for reliable dispatch
+    value_to_enum = {}
+    for group in (Command.Contacts, Command.Notes, Command.General):
+        for cmd in group:
+            value_to_enum[cmd.value] = cmd
+
     try:
         while True:
-            user_input = session.prompt('Enter a command: ', completer=completer)
-            command, *args = parse_input(user_input)
+            if is_tty:
+                user_input = session.prompt('Enter a command: ', completer=completer)
+            else:
+                try:
+                    user_input = input('> ')
+                except EOFError:
+                    break
 
-            if command == Command.General.CLOSE:
+            command, *args = parse_input(user_input)
+            cmd_enum = value_to_enum.get(command)
+
+            if cmd_enum == Command.General.CLOSE:
                 print("Good bye!")
                 persist()
                 break
@@ -134,23 +152,28 @@ def main():
                 print("Notes Data:", getattr(notes, "data", []))
                 continue
 
-            elif command == Command.General.HELLO:
+            elif cmd_enum == Command.General.HELLO:
                 print("How can I help you?")
                 continue
 
-            elif command == Command.General.HELP:
+            elif cmd_enum == Command.General.HELP:
                 show_help()
                 continue
 
-            if command in COMMANDS:
-                handler = COMMANDS[command]
+            if cmd_enum in COMMANDS:
+                handler = COMMANDS[cmd_enum]
                 if handler is None:
                     print("⚠️ Command not implemented yet.")
                 else:
-                    if isinstance(command, Command.Contacts):
-                        print(handler(args, contacts))
-                    elif isinstance(command, Command.Notes):
-                        print(handler(args, notes))
+                    if isinstance(cmd_enum, Command.Contacts):
+                        result = handler(args, contacts)
+                    elif isinstance(cmd_enum, Command.Notes):
+                        result = handler(args, notes)
+                    else:
+                        result = None
+
+                    if result is not None:
+                        print(str(result).rstrip())
             else:
                 print("Invalid command.")
     finally:
