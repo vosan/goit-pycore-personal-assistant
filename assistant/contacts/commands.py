@@ -27,7 +27,7 @@ from assistant.contacts.utils import format_contact
 @input_error
 def add_contact(args, book):
     """Add a new contact or phone number."""
-    if len(args) < 2 or len(args[1])!= 10 or not args[1].isdigit():
+    if len(args) < 2 or len(args[1]) != 10 or not args[1].isdigit():
         return "Usage: add [name] [phone number] with 10 digits"
     name, phone = args[0], args[1]
     record = book.find(name)
@@ -166,6 +166,31 @@ def delete_contact(args, book):
     if deleted:
         return f"Contact {name} deleted."
     return "Contact not found."
+
+
+@input_error
+def search_contacts(self, query: str) -> list:
+    """Шукає контакти за запитом (ім'я, телефон, email)."""
+    results = []
+    query_lower = query.lower()
+
+    # пошук по всіх полях контакту (структуру треба щоб хтось реалізував)
+    for contact in self.data.values():
+        if query_lower in contact.name.lower():
+            results.append(contact)
+            continue
+            # пошук в телефонах
+        for phone in contact.phones:
+            if query in phone:  # Телефони зберігаються в рядках, можна шукати без зміни регістру
+                results.append(contact)
+                break
+                # пошук в emails
+        for email in contact.emails:
+            if query_lower in email.lower():
+                results.append(contact)
+                break
+
+    return results
 
 
 def register_contact_commands(commands):
