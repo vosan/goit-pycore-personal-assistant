@@ -8,6 +8,7 @@ Responsibilities:
 """
 from .fields import Name, Phone, Birthday, Email, Address
 from datetime import datetime
+from typing import Any, Dict, List
 
 class Record:
     def __init__(self, name: str):
@@ -51,14 +52,14 @@ class Record:
         try:
             next_birthday = birthday_date.replace(year=today.year)
         except ValueError:
-            next_birthday = datetime(today.year,2,28).date()
+            next_birthday = datetime(today.year, 2, 28).date()
         if next_birthday < today:
             next_year = today.year + 1
-        try:
-            next_birthday = birthday_date.replace(year=next_year)
-        except ValueError:
-            # Again: Feb 29 fallback for non-leap years
-            next_birthday = datetime(next_year, 2, 28).date()
+            try:
+                next_birthday = birthday_date.replace(year=next_year)
+            except ValueError:
+                # Again: Feb 29 fallback for non-leap years
+                next_birthday = datetime(next_year, 2, 28).date()
 
         return (next_birthday - today).days
     
@@ -83,3 +84,31 @@ class Record:
             f"Email: {email_str}, "
             f"Address: {address_str}"
         )
+
+    # ---- Serialization helpers ----
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name.value,
+            "phones": [p.value for p in self.phones],
+            "birthday": self.birthday.value.strftime("%d.%m.%Y") if self.birthday else None,
+            "email": self.email.value if self.email else None,
+            "address": self.address.value if self.address else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Record":
+        # Support both dicts keyed and possibly minimal items
+        name = data.get("name") or data.get("Name")
+        rec = cls(name)
+        for ph in data.get("phones", []) or []:
+            rec.add_phone(ph)
+        bday = data.get("birthday")
+        if bday:
+            rec.add_birthday(bday)
+        email = data.get("email")
+        if email:
+            rec.add_email(email)
+        address = data.get("address")
+        if address:
+            rec.add_address(address)
+        return rec

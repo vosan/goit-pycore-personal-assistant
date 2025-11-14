@@ -102,7 +102,8 @@ def show_birthday(args, book):
 @input_error
 def birthdays(args, book):
     """Show contacts with upcoming birthdays."""
-    result = book.get_upcoming_birthdays()
+    days = int(args[0]) if args else 7
+    result = book.get_upcoming_birthdays(days)
     if not result:
         return "No birthdays within the next week."
     return "\n".join(f"{name}: {date}" for name, date in result.items())
@@ -125,9 +126,10 @@ def add_email(args, book):
 @input_error
 def add_address(args, book):
     """Add a physical address to a contact."""
-    if len(args) != 2:
+    if len(args) < 2:
         return "Usage: add-address [name] [address]"
-    name, address = args
+    name = args[0]
+    address = " ".join(args[1:])
     record = book.find(name)
     if not record:
         record = Record(name)
@@ -136,36 +138,33 @@ def add_address(args, book):
     return f"Address for {name} has been added."
 
 @input_error
-def search_contacts(self, query: str) -> list:
-    """Search contacts by name, phone, or email."""
-    query_lower = query.lower()
-    results = []
+def search_contacts(args, book):
+    """Search contacts by name, phone, email, or address.
 
-    for contact in self.data.values():
-        found = False
+    Usage: search-contacts <query>
+    """
+    if not args:
+        return "Usage: search-contacts <query>"
+    query = " ".join(args).strip()
+    ql = query.lower()
+    matches = []
 
-        # --- name ---
-        if query_lower in contact.name.value.lower():
-            found = True
+    for contact in book.data.values():
+        if ql in contact.name.value.lower():
+            matches.append(contact)
+            continue
+        if any(ql in p.value.lower() for p in contact.phones):
+            matches.append(contact)
+            continue
+        if contact.email and ql in contact.email.value.lower():
+            matches.append(contact)
+            continue
+        if contact.address and ql in contact.address.value.lower():
+            matches.append(contact)
 
-        # --- phones ---
-        if not found:
-            for phone in contact.phones:
-                if query in phone:
-                    found = True
-                    break
-
-        # --- emails ---
-        if not found:
-            for email in contact.emails:
-                if query_lower in email.lower():
-                    found = True
-                    break
-
-        if found:
-            results.append(contact)
-
-    return results
+    if not matches:
+        return f"No contacts matched '{query}'."
+    return "\n".join(str(c) for c in matches)
 
 
 def register_contact_commands(commands):

@@ -75,8 +75,8 @@ def main():
     notes_path = data_dir / "notes.json"
 
     # Load persisted data (create files with defaults if missing)
-    contacts_data = load_data(contacts_path, default=[])
-    notes_data = load_data(notes_path, default=[])
+    contacts_data = load_data(contacts_path, default={})
+    notes_data = load_data(notes_path, default={})
 
     contacts = AddressBook()
     notes = Notebook()
@@ -86,14 +86,20 @@ def main():
     session = PromptSession() if is_tty else None
     completer = Typeahead(hints=(cmd.value for cmd in COMMANDS.keys())) if is_tty else None
 
-    # Attach runtime data containers
-    setattr(contacts, "data", contacts_data)
-    setattr(notes, "data", notes_data)
+    # Initialize in-memory data from persisted storage
+    if isinstance(contacts_data, dict):
+        contacts.from_dict(contacts_data)
+    elif isinstance(contacts_data, list):
+        # Backward-compatible shape
+        contacts.from_list(contacts_data)
+
+    if isinstance(notes_data, dict):
+        notes.from_dict(notes_data)
 
     def persist():
         # Persist in-memory/runtime data to files
-        save_data(contacts_path, getattr(contacts, "data", []))
-        save_data(notes_path, getattr(notes, "data", []))
+        save_data(contacts_path, contacts.to_dict())
+        save_data(notes_path, notes.to_dict())
 
     def handle_signal(signum, frame):
         try:
@@ -141,15 +147,16 @@ def main():
                 sample_notes = [
                     {"title": "Welcome", "content": "First note", "tags": ["intro", "test"]}
                 ]
-                setattr(contacts, "data", sample_contacts)
-                setattr(notes, "data", sample_notes)
+                contacts.from_list(sample_contacts)
+                # Convert notes list into dict shape keyed by title
+                notes.from_dict({item["title"]: item for item in sample_notes})
                 persist()
                 print("Test data written to data/contacts.json and data/notes.json.")
                 continue
 
             elif command == "test-get":
-                print("Contacts Data:", getattr(contacts, "data", []))
-                print("Notes Data:", getattr(notes, "data", []))
+                print("Contacts Data:", contacts.to_dict())
+                print("Notes Data:", notes.to_dict())
                 continue
 
             elif cmd_enum == Command.General.HELLO:

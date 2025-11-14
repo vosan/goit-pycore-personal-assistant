@@ -5,11 +5,40 @@ Responsibilities:
 - Store and retrieve Record instances by name.
 - Provide search, delete, and iteration methods.
 - Include the `get_upcoming_birthdays()` function.
+ - Handle serialization to/from JSON-compatible structures.
 """
 
 from datetime import datetime
+from typing import Dict, Any
+
+from .record import Record
 
 class AddressBook:
+    def __init__(self) -> None:
+        # Internal storage: name -> Record
+        self.data: Dict[str, Record] = {}
+
+    def add_record(self, record: Record) -> None:
+        """Add or replace a record by its name."""
+        self.data[record.name.value] = record
+
+    def find(self, name: str) -> Record | None:
+        """Find a record by exact name."""
+        return self.data.get(name)
+
+    # ---- Serialization helpers ----
+    def to_dict(self) -> Dict[str, Any]:
+        return {name: rec.to_dict() for name, rec in self.data.items()}
+
+    def from_dict(self, data: Dict[str, Any]) -> None:
+        self.data = {name: Record.from_dict(rec) for name, rec in data.items()}
+
+    def from_list(self, items: list[dict]) -> None:
+        """Backward compatibility for list-shaped storage."""
+        self.data = {}
+        for item in items:
+            rec = Record.from_dict(item)
+            self.add_record(rec)
 
     def get_upcoming_birthdays(self, days: int | None = 7):
         today = datetime.today().date()
