@@ -119,9 +119,6 @@ def main():
             *[cmd.value for cmd in Command.Contacts],
             *[cmd.value for cmd in Command.Notes],
             *[cmd.value for cmd in Command.General],
-            # helper/testing commands
-            "test-set",
-            "test-get",
         ]
         completer = Typeahead(hints=all_hints)
     else:
@@ -149,25 +146,6 @@ def main():
                 persist()
                 break
 
-            elif command == "test-set":
-                sample_contacts = [
-                    {"name": "Alice", "phones": ["0123456789"], "birthday": "12.11.1990"},
-                    {"name": "Bob", "phones": ["0987654321"], "birthday": None},
-                ]
-                sample_notes = [
-                    {"title": "Welcome", "content": "First note", "tags": ["intro", "test"]}
-                ]
-                contacts.from_list(sample_contacts)
-                # Convert notes list into dict shape keyed by title
-                notes.from_dict({item["title"]: item for item in sample_notes})
-                persist()
-                print("Test data written to data/contacts.json and data/notes.json.")
-                continue
-
-            elif command == "test-get":
-                print("Contacts Data:", contacts.to_dict())
-                print("Notes Data:", notes.to_dict())
-                continue
 
             elif cmd_enum == Command.General.HELLO:
                 print("How can I help you?")
