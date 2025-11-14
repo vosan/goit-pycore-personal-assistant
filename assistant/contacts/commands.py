@@ -169,28 +169,34 @@ def delete_contact(args, book):
 
 
 @input_error
-def search_contacts(self, query: str) -> list:
-    """Шукає контакти за запитом (ім'я, телефон, email)."""
-    results = []
-    query_lower = query.lower()
+def search_contacts(args, book):
+    """Search contacts by name, phone, email, or address.
 
-    # пошук по всіх полях контакту (структуру треба щоб хтось реалізував)
-    for contact in self.data.values():
-        if query_lower in contact.name.lower():
-            results.append(contact)
+    Usage: search-contacts <query>
+    """
+    if not args:
+        return "Usage: search-contacts <query>"
+    query = " ".join(args).strip()
+    ql = query.lower()
+    matches = []
+
+    for contact in book.data.values():
+        if ql in contact.name.value.lower():
+            matches.append(contact)
             continue
-            # пошук в телефонах
-        for phone in contact.phones:
-            if query in phone:  # Телефони зберігаються в рядках, можна шукати без зміни регістру
-                results.append(contact)
-                break
-                # пошук в emails
-        for email in contact.emails:
-            if query_lower in email.lower():
-                results.append(contact)
-                break
+        if any(ql in p.value.lower() for p in contact.phones):
+            matches.append(contact)
+            continue
+        if contact.email and ql in contact.email.value.lower():
+            matches.append(contact)
+            continue
+        if contact.address and ql in contact.address.value.lower():
+            matches.append(contact)
 
-    return results
+    if not matches:
+        return f"No contacts matched '{query}'."
+    blocks = [format_contact(c) for c in matches]
+    return "\n\n".join(blocks)
 
 
 def register_contact_commands(commands):
