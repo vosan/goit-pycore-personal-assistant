@@ -167,36 +167,6 @@ def delete_contact(args, book):
         return f"Contact {name} deleted."
     return "Contact not found."
 
-@input_error
-def search_contacts(args, book):
-    """Search contacts by name, phone, email, or address.
-
-    Usage: search-contacts <query>
-    """
-    if not args:
-        return "Usage: search-contacts <query>"
-    query = " ".join(args).strip()
-    ql = query.lower()
-    matches = []
-
-    for contact in book.data.values():
-        if ql in contact.name.value.lower():
-            matches.append(contact)
-            continue
-        if any(ql in p.value.lower() for p in contact.phones):
-            matches.append(contact)
-            continue
-        if contact.email and ql in contact.email.value.lower():
-            matches.append(contact)
-            continue
-        if contact.address and ql in contact.address.value.lower():
-            matches.append(contact)
-
-    if not matches:
-        return f"No contacts matched '{query}'."
-    blocks = [format_contact(c) for c in matches]
-    return "\n\n".join(blocks)
-
 
 def register_contact_commands(commands):
     """Register commands in the main command dispatcher."""
