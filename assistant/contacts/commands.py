@@ -61,6 +61,8 @@ def show_phone(args, book):
     record = book.find(name)
     if not record:
         return "Contact not found."
+    if not record.phones:
+        return f"{name}: no phone numbers"
     phones = "; ".join(p.value for p in record.phones)
     return f"{name}: {phones}"
 
@@ -103,9 +105,12 @@ def show_birthday(args, book):
 def birthdays(args, book):
     """Show contacts with upcoming birthdays."""
     days = int(args[0]) if args else 7
-    result = book.get_upcoming_birthdays(days)
+    # Ensure non-negative day window
+    window = max(days, 0)
+    result = book.get_upcoming_birthdays(window)
     if not result:
-        return "No birthdays within the next week."
+        suffix = "day" if window == 1 else "days"
+        return f"No birthdays within the next {window} {suffix}."
     return "\n".join(f"{name}: {date}" for name, date in result.items())
 
 

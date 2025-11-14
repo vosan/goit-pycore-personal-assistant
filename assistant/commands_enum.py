@@ -92,7 +92,7 @@ COMMAND_HELP = {
     ),
     Command.Contacts.SEARCH: CommandHelp(
         params="<query>",
-        description="Search contacts by name, phone or email"
+        description="Search contacts by name, phone, email, or address"
     ),
     Command.Contacts.ADD_EMAIL: CommandHelp(
         params="<name> <email>",

@@ -21,21 +21,8 @@ from assistant.commands_enum import Command, COMMAND_HELP
 from assistant.notes.notebook import Notebook
 from assistant.storage_manager import load_data, save_data
 
-COMMANDS = {
-    Command.Contacts.ADD: None,
-    Command.Contacts.CHANGE: None,
-    Command.Contacts.PHONE: None,
-    Command.Contacts.ALL: None,
-    Command.Contacts.ADD_BIRTHDAY: None,
-    Command.Contacts.SHOW_BIRTHDAY: None,
-    Command.Contacts.BIRTHDAYS: None,
-    Command.Notes.ADD_NOTE: None,
-    Command.Notes.EDIT_NOTE: None,
-    Command.Notes.DELETE_NOTE: None,
-    Command.Notes.SEARCH_NOTE: None,
-    Command.Notes.SHOW_NOTES: None,
-    Command.Contacts.SEARCH: None
-}
+# Command registry (populated by register_* functions)
+COMMANDS = {}
 
 
 def show_help():
@@ -84,7 +71,6 @@ def main():
     # "Warning: Input is not a terminal (fd=0)."
     is_tty = sys.stdin.isatty() and sys.stdout.isatty()
     session = PromptSession() if is_tty else None
-    completer = Typeahead(hints=(cmd.value for cmd in COMMANDS.keys())) if is_tty else None
 
     # Initialize in-memory data from persisted storage
     if isinstance(contacts_data, dict):
@@ -109,8 +95,14 @@ def main():
 
     # Ensure data is saved on normal and signal-based termination
     atexit.register(persist)
-    signal.signal(signal.SIGINT, handle_signal)
-    signal.signal(signal.SIGTERM, handle_signal)
+    try:
+        signal.signal(signal.SIGINT, handle_signal)
+    except Exception:
+        pass
+    try:
+        signal.signal(signal.SIGTERM, handle_signal)
+    except Exception:
+        pass
 
     register_contact_commands(COMMANDS)
     register_note_commands(COMMANDS)
@@ -121,6 +113,20 @@ def main():
         for cmd in group:
             value_to_enum[cmd.value] = cmd
 
+    # Initialize completer after registration using all known command names
+    if is_tty:
+        all_hints = [
+            *[cmd.value for cmd in Command.Contacts],
+            *[cmd.value for cmd in Command.Notes],
+            *[cmd.value for cmd in Command.General],
+            # helper/testing commands
+            "test-set",
+            "test-get",
+        ]
+        completer = Typeahead(hints=all_hints)
+    else:
+        completer = None
+
     try:
         while True:
             if is_tty:
@@ -130,6 +136,10 @@ def main():
                     user_input = input('> ')
                 except EOFError:
                     break
+
+            # Skip empty or whitespace-only inputs without error
+            if not user_input or not user_input.strip():
+                continue
 
             command, *args = parse_input(user_input)
             cmd_enum = value_to_enum.get(command)
@@ -182,7 +192,8 @@ def main():
                     if result is not None:
                         print(str(result).rstrip())
             else:
-                print("Invalid command.")
+                # Only report invalid for non-empty commands
+                print("Unknown command. Type 'help' to see available commands.")
     finally:
         # Fallback persistence in case of unexpected exceptions
         persist()

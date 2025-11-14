@@ -41,6 +41,15 @@ class AddressBook:
             self.add_record(rec)
 
     def get_upcoming_birthdays(self, days: int | None = 7):
+        """Return a dict of name -> next birthday date (DD.MM.YYYY) within the next `days`.
+
+        - If `days` is None, defaults to 7.
+        - Negative values are treated as 0 (today only).
+        """
+        if days is None:
+            days = 7
+        if days < 0:
+            days = 0
         today = datetime.today().date()
         upcoming = {}
 
