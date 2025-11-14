@@ -58,7 +58,7 @@ def change_contact(args, book):
 def show_phone(args, book):
     """Show all phone numbers for a contact."""
     if len(args) != 1:
-        return "Usage: phone [name]"
+        return "Usage: phone <name> <phone>"
     name = args[0]
     record = book.find(name)
     if not record:

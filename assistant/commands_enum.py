@@ -22,7 +22,6 @@ class Command:
     class Contacts(str, Enum):
         """Contact management commands."""
         ADD = "add"
-        PHONE = "add-phone"
         ADD_EMAIL = "add-email"
         ADD_BIRTHDAY = "add-birthday"
         ADD_ADDRESS = "add-address"
@@ -30,6 +29,7 @@ class Command:
         BIRTHDAYS = "birthdays"
         SHOW_BIRTHDAY = "birthday"
         ALL = "all"
+        PHONE = "phone"
         SEARCH = "search"
         DELETE = "delete"
 
