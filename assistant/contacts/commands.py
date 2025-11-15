@@ -19,7 +19,7 @@ Responsibilities:
 """
 
 from assistant.commands_enum import Command
-from assistant.core import input_error
+from assistant.validators.fields import input_error
 from assistant.contacts.record import Record
 from assistant.contacts.utils import format_contact
 

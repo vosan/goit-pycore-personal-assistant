@@ -17,7 +17,7 @@ Responsibilities:
 from typing import List
 from assistant.commands_enum import Command
 from assistant.notes.notebook import Notebook
-from assistant.core import input_error
+from assistant.validators.fields import input_error
 
 
 @input_error
