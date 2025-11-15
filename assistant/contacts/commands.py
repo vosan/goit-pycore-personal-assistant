@@ -50,8 +50,11 @@ def change_contact(args, book):
     record = book.find(name)
     if not record:
         return "Contact not found."
-    record.edit_phone(old_phone, new_phone)
-    return f"Phone number for {name} has been changed."
+    if len(args[2]) == 10 and args[2].isdigit(): 
+        record.edit_phone(old_phone, new_phone)
+        return f"Phone number for {name} has been changed."
+    else:
+        return f"Please provide valid phone number (10 digits)"
 
 
 @input_error
